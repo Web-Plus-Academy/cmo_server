@@ -1,11 +1,12 @@
 import express from 'express';
 import { logInAdmin, logOutAdmin, signUpAdmin } from '../controller/adminLogin.controller.js';
 import { newUserAdd } from '../controller/newUser.controller.js';
-import protectRoute from '../middleware/admin.middleware.js';
+// import protectRoute from '../middleware/admin.middleware.js';
 
 const router = express.Router();
 
-router.post('/newUser',protectRoute,newUserAdd);  //
+router.post('/newUser',newUserAdd);  //
+// router.post('/newUser',protectRoute,newUserAdd);  
 
 router.post('/signupAdmin', signUpAdmin);  // ✅
 

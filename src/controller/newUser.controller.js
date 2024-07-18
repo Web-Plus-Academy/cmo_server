@@ -1,10 +1,18 @@
-import User from "../models/userLogin.model.js";
+import getUserModelForBatch from "../models/userLogin.model.js";
 import bcrypt from 'bcryptjs';
 
 // ------------New User Add---------- ✅
 export const newUserAdd = async (req, res) => {
   try {
-    const { name, username, password } = req.body;
+    const { name, username, password, batchnumber } = req.body;
+
+    // Validate the batchnumber
+    if (!batchnumber) {
+      return res.status(400).json({ success: false, message: "Batch number is required" });
+    }
+
+    // Get the User model for the specified batch
+    const User = getUserModelForBatch(batchnumber);
 
     // Check if user already exists
     const user = await User.findOne({ username });
@@ -12,6 +20,8 @@ export const newUserAdd = async (req, res) => {
     if (user) {
       return res.json({ success: false, message: "User Already Exists" });
     }
+
+    
 
     // Hash the password
     const salt = await bcrypt.genSalt(10);
@@ -22,6 +32,7 @@ export const newUserAdd = async (req, res) => {
       name,
       username,
       password: hashedPassword,
+      batchnumber
     });
 
     // Save the new user to the database
@@ -31,9 +42,9 @@ export const newUserAdd = async (req, res) => {
     // Respond with success message
     res.status(201).json({
       success: true,
-      name: newUser.name,
-      message: `User created successfully ${username}`
+      message: `User created successfully\nID: ${username}`
     });
+    
   } catch (error) {
     console.log("Error in SignUp controller", error.message);
     res.status(500).json({ success: false, message: error.message });
