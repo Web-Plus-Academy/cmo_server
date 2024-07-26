@@ -1,16 +1,17 @@
 import bycrypt from 'bcryptjs';
 import generateTokenSetCookie from "../utils/generateToken.js";
 import AdminSchema from '../models/adminLoginModel.js';
+import getUserModelForBatch from '../models/userLogin.model.js';
 
 
 // ------------Admin sign up---------- ✅
 export const signUpAdmin = async (req, res) => {
     try {
-        const {name, adminname, password } = req.body;
-        const Admin = await AdminSchema.findOne({  adminname });
+        const { name, adminname, password } = req.body;
+        const Admin = await AdminSchema.findOne({ adminname });
 
         if (Admin) {
-            return res.json({success:false, error: "Admin Already Exists" });
+            return res.json({ success: false, error: "Admin Already Exists" });
         }
 
         //Hashing the password
@@ -29,18 +30,18 @@ export const signUpAdmin = async (req, res) => {
             await newAdmin.save();
             console.log("New Admin Created")
             res.status(201).json({
-                success:true,
+                success: true,
                 name: newAdmin.name,
                 ID: adminname
             })
         }
         else {
-            res.status(400).json({success:false, message: "Invalid Admin data" });
+            res.status(400).json({ success: false, message: "Invalid Admin data" });
         }
 
     } catch (error) {
         console.log("Error in SignUp controller", error.message);
-        res.status(500).json({success:false, message: error.message })
+        res.status(500).json({ success: false, message: error.message })
     }
 }
 
@@ -55,7 +56,7 @@ export const logInAdmin = async (req, res) => {
             return res.json({ success: false, message: "Invalid Adminname" });
         }
 
-        if(!ispasswordCorrect){
+        if (!ispasswordCorrect) {
             return res.json({ success: false, message: "Invalid Password" });
         }
 
@@ -63,8 +64,8 @@ export const logInAdmin = async (req, res) => {
 
         const time = getCurrentDateTime();
 
-        console.log({message:"Admin Loged In", time: time, Admin: adminname});
-        res.status(200).json({ success: true,message:"Login Successful !" , name:Admin.name, ID: Admin.adminname});
+        console.log({ message: "Admin Loged In", time: time, Admin: adminname });
+        res.status(200).json({ success: true, message: "Login Successful !", name: Admin.name, ID: Admin.adminname });
 
     } catch (error) {
         console.log("Error in Login controller", error.message);
@@ -85,6 +86,31 @@ export const logOutAdmin = (req, res) => {
     }
 }
 
+export const resetPOD = async (req, res) => {
+    console.log("API endpoint hit: Cron job started");
+    try {
+        const batchNumbers = [1, 2, 3]; // Replace with your actual batch numbers
+        for (const batchNumber of batchNumbers) {
+          console.log(`Processing batch number: ${batchNumber}`);
+          const UserModel = getUserModelForBatch(batchNumber);
+          if (!UserModel) {
+            console.error(`User model for batch ${batchNumber} not found`);
+            continue;
+          }
+          const result = await UserModel.updateMany(
+            { podSubmissionStatus: true },
+            { $set: { podSubmissionStatus: false } }
+          );
+          console.log(`POD submission status reset for batch ${batchNumber}. Matched: ${result.matchedCount}, Modified: ${result.modifiedCount}`);
+        }
+        // console.log("Cron job completed successfully");
+        console.log("Cron job completed successfully");
+        res.status(200).json({ message: 'POD submission status reset successfully', success: true });
+    } catch (error) {
+        console.error('Error resetting POD submission status:', error.message);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+};
 
 
 // ---------- finding date and time at login ---------- ✅
@@ -98,7 +124,7 @@ function getCurrentDateTime() {
     const seconds = String(now.getSeconds()).padStart(2, '0');
 
     return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
-     
+
 
 }
 

@@ -22,7 +22,11 @@ const UserSchema = new mongoose.Schema({
   POD: {
     type: Number,
     default: 0 // Initialize with 0
-  }
+  },
+  podSubmissionStatus: {
+    type: Boolean,
+    default: false // Track if the POD has been submitted today
+  },
 }, { timestamps: true });
 
 // Function to get the model for a specific batch
