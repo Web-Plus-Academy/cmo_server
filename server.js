@@ -17,6 +17,9 @@ const corsOptions = {
   origin: process.env.FRONTEND_URL,
   credentials: true, // Allow cookies to be sent
 };
+
+console.log('CORS Options:', corsOptions); // Log CORS options
+
 app.use(cors(corsOptions));
 app.use(express.json()); 
 app.use(cookieParser());
