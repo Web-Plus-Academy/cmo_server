@@ -128,3 +128,56 @@ function getCurrentDateTime() {
 
 }
 
+
+// --------------- update password -------------------
+export const updatePassword =  async (req, res) => {
+  const {adminname, oldPassword, newPassword } = req.body;
+  try {
+    const user = await AdminSchema.findOne({adminname});
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.',
+      });
+    }
+
+    // Check if the old password matches the stored password
+    const isMatch = await bycrypt.compare(oldPassword, user.password);
+
+    if (!isMatch) {
+      return res.json({
+        success: false,
+        message: 'Old password is incorrect.',
+      });
+    }
+
+    // // Validate the new password (you can add additional checks, e.g., length, strength)
+    // if (newPassword.length < 6) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: 'New password must be at least 6 characters long.',
+    //   });
+    // }
+
+    // Hash the new password before saving
+    const hashedPassword = await bycrypt.hash(newPassword, 10);
+
+    // Update the password in the database
+    user.password = hashedPassword;
+    await user.save();
+
+    // Respond with success message
+    res.status(200).json({
+      success: true,
+      message: 'Password updated successfully.',
+    });
+  } catch (error) {
+    console.error('Error updating password:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating password.',
+    });
+  }
+};
+
