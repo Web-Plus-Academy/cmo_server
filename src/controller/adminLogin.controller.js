@@ -1,7 +1,6 @@
 import bycrypt from 'bcryptjs';
 import generateTokenSetCookie from "../utils/generateToken.js";
 import AdminSchema from '../models/adminLoginModel.js';
-import getUserModelForBatch from '../models/userLogin.model.js';
 
 
 // ------------Admin sign up---------- ✅
@@ -86,33 +85,6 @@ export const logOutAdmin = (req, res) => {
     }
 }
 
-export const resetPOD = async (req, res) => {
-    console.log("API endpoint hit: Cron job started");
-    try {
-        const batchNumbers = [1, 2, 3]; // Replace with your actual batch numbers
-        for (const batchNumber of batchNumbers) {
-          console.log(`Processing batch number: ${batchNumber}`);
-          const UserModel = getUserModelForBatch(batchNumber);
-          if (!UserModel) {
-            console.error(`User model for batch ${batchNumber} not found`);
-            continue;
-          }
-          const result = await UserModel.updateMany(
-            { podSubmissionStatus: true },
-            { $set: { podSubmissionStatus: false } }
-          );
-          console.log(`POD submission status reset for batch ${batchNumber}. Matched: ${result.matchedCount}, Modified: ${result.modifiedCount}`);
-        }
-        // console.log("Cron job completed successfully");
-        console.log("Cron job completed successfully");
-        res.status(200).json({ message: 'POD submission status reset successfully', success: true });
-    } catch (error) {
-        console.error('Error resetting POD submission status:', error.message);
-        res.status(500).json({ success: false, error: 'Internal Server Error' });
-    }
-};
-
-
 // ---------- finding date and time at login ---------- ✅
 function getCurrentDateTime() {
     const now = new Date();
@@ -152,15 +124,7 @@ export const updatePassword =  async (req, res) => {
       });
     }
 
-    // // Validate the new password (you can add additional checks, e.g., length, strength)
-    // if (newPassword.length < 6) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: 'New password must be at least 6 characters long.',
-    //   });
-    // }
 
-    // Hash the new password before saving
     const hashedPassword = await bycrypt.hash(newPassword, 10);
 
     // Update the password in the database
