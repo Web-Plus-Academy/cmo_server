@@ -5,6 +5,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 
 import router from './src/router/login.router.js';
+import projectrouter from './src/router/projectroute.js'
 import connectToMongoDB from './src/config/dbConnect.js';
 
 dotenv.config();
@@ -19,14 +20,14 @@ const corsOptions = {
 };
 
 console.log('CORS Options:', corsOptions); // Log CORS options
-
+``
 app.use(cors(corsOptions));
 app.use(express.json()); 
 app.use(cookieParser());
 app.use(bodyParser.json());
 
 app.use('/api/admin',router);
-
+app.use('/projects',projectrouter)
 app.listen(PORT, () => {
     connectToMongoDB();
     console.log(`Server is running in port ${PORT}`);
