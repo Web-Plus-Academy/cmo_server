@@ -14,9 +14,9 @@ export const createProject = async (req, res) => {
       return res.status(400).json({ message: 'Deadline must be after the taken date' });
     }
 
-    if (!pdf.endsWith('.pdf')) {
-      return res.status(400).json({ message: 'Only PDF files are allowed' });
-    }
+    // if (!pdf.endsWith('.pdf')) {
+    //   return res.status(400).json({ message: 'Only PDF files are allowed' });
+    // }
 
     const project = new Project({ name, takenDate, deadline, pdf });
     await project.save();
